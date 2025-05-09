@@ -7,13 +7,11 @@ class GameCharacter(ABC):
     def __init__(self, health, mana, level = 1):
         self.max_health = health
         self.max_mana = mana 
-        self.health = health
+        self.health = health 
         self.mana = mana
         self.level = level
+        self.is_defending = False
 
-    @abstractmethod
-    def show_status(self):
-        pass 
 
     @abstractmethod
     def attack(self):
@@ -38,104 +36,166 @@ class Mage(GameCharacter):
 class Archer(GameCharacter):
     def __init__(self, level=1):
         super().__init__(health = 100, mana = 60, level = level)
-        self.is_defending = False
 
-    def show_status(self):
-        print(f"{type(current).__name__}: | HP: {self.health}/{self.max_health} | Mana: {self.mana}/{self.max_mana} | Lvl: {self.level}")
+    def attack(self):
+        return f"Archer (Lvl {self.level}) fires a volley of arrows!", 15 * self.level
 
     def defend(self):
         self.is_defending = True
-        print("\nYou are ready to block the enemy's attack.\n")
+        return f"You are ready to block the enemy's attack."
 
     def cast_spell(self):
         if self.mana >= 10:
             self.mana -= 10
-            current_enemy.health -= 10 * self.level
-            print(f"\nCharged Arrow! >>----> | {current_enemy.name} loses {10 * self.level} health!\n")
+            return f"Archer fires a Charge Arrow!", 30 * self.level
         else:
-            print("\nNot enough mana!\n")
-
-    def attack(self):
-        current_enemy.health -= 5 * self.level
-        print(f"\nAttack with bow! | {current_enemy.name} loses {5 * self.level} health!\n")
+            return f"Not enough mana.", 0
 
 class Assassin(GameCharacter):
     def __init__(self, level=1):
         super().__init__(health = 90, mana = 70, level = level)
 
 class Enemy:
-    def __init__(self, name, health, mana, level):
+    def __init__(self, name, health, level = 1):
         self.name = name
         self.max_health = health 
-        self.max_mana = mana
         self.health = health
-        self.mana = mana
+        self._attack = int(health * 0.15)
         self.level = level
 
-    def show_status(self):
-        print(f"{self.name}: | HP: {self.health}/{self.max_health} | Mana: {self.mana}/{self.max_mana} | Lvl: {self.level}")
-
-    def move(self, player):
-        action = random.randrange(1, 5)
-        if action < 4:
-            if player.is_defending:
-                print(f"{self.name} attacks, but you PARRIED the attack!\n")
-                player.is_defending = False
-            else:
-                player.health -= 5 * self.level
-                print(f"{self.name} attack! | You lose {5 * self.level} health!\n")
-        elif action == 4:
-            if self.mana >= 10:
-                self.mana -= 10
-                player.health -= 10 * self.level
-                print(f"{self.name} attacks heavily! | You lose {10 * self.level} health!\n")
-            else:
-                print(f"The {self.name} doesn't seem to have mana!\n")    
+    def attack(self, player):
+        if player.is_defending:
+            player.is_defending = False
+            return f"{self.name} attacks, but you PARRIED the attack!", 0
+        else:
+            return f"{self.name} attacks viciously!", self._attack
         
-enemy = Enemy("Goblin", 50, 20, 1)
-current_enemy = enemy
+    def take_damage(self, amount):
+        self.health -= amount
+        return f"{self.name} takes {amount} damage! Remaining health: {self.health}"
 
-
-player = Archer()
-current = player
+enemy_data = [
+    ("Goblin", 50),
+    ("Orc Brute", 90),
+    ("Shadow Wraith", 75),
+    ("Fire Imp", 60),
+    ("Frost Troll", 120),
+    ("Dark Acolyte", 70),
+    ("Bone Knight", 100),
+    ("Venom Serpent", 65),
+    ("Blood Revenant", 110),
+    ("Void Walker", 85),
+    ("Stone Golem", 150),
+    ("Necromancer", 80),
+    ("Swamp Beast", 130),
+    ("Thunder Hawk", 70),
+    ("Crimson Bandit", 60),
+    ("Abyssal Hound", 95),
+    ("Skeletal Archer", 55),
+    ("Blight Mage", 75),
+    ("Doom Bringer", 140),
+    ("Plague Rat", 45),
+    ("Harpy Matron", 85),
+    ("Spectral Assassin", 100),
+    ("Molten Drake", 160),
+    ("Crypt Horror", 120),
+    ("Wind Djinn", 90)
+]
 
 clear = lambda: os.system('cls' if os.name == 'nt' else 'clear')
 
 if __name__ == "__main__":
 
+    print("[1] Warrior")
+    print("[2] Mage")
+    print("[3] Archer")
+    print("[4] Assassin")
+
+    classChoice = input("Select a Class: ")
+
+    time.sleep(2)
+    clear()
+
+    if classChoice == "1":
+        player = Warrior()
+    elif classChoice == "2":
+        player = Mage()
+    elif classChoice == "3":
+        player = Archer()
+    elif classChoice == "4":
+        player = Assassin()
+    else:
+        print("Invalid Choice")
+        exit()
+
+    enemy_name, enemy_health = random.choice(enemy_data)
+    enemy = Enemy(enemy_name, health=enemy_health)
+
     while True:
-        current.show_status()
-        current_enemy.show_status()
-        choice = input("Choose Action: [1] Attack [2] Defend [3] Cast Spell [4] Exit: ")
-    
-        if choice == "1":
-            current.attack()
-        elif choice == "2":
-            current.defend()
-        elif choice == "3":
-            current.cast_spell()
-        elif choice == "4":
-            break
+        print("\n--- BATTLE START ---")
+        print(f"Enemy: {enemy.name} | HP: {enemy.health} | Lvl: {enemy.level}")
+        print(f"Player: | HP: {player.health} | Mana: {player.mana} | Lvl: {player.level}")
+
+        # Player turn
+        print("[1] Attack")
+        print("[2] Defend")
+        print("[3] Cast Spell")
+        action = input("Choose action: ")
+        if action == "1":
+            desc, damage = player.attack()
+        elif action == "2":
+            desc = player.defend()
+            damage = 0
+        elif action == "3":
+            desc, damage = player.cast_spell()
         else:
-            print("Invalid choice, please try again.")
+            print("Invalid action, turn skipped.")
+            continue
 
-        current_enemy.move(current)
-        if current.health <= 0:
-            print("You have been defeated!\n")
-            current.health = current.max_health 
-            current.mana = current.max_mana
-            print("\n<<<You have been revived!>>>\n")
-            
-        elif current_enemy.health <= 0:
-            current.level += 1
-            current.max_health += current.max_health * 0.5
-            current.max_mana += current.max_mana * 0.5
-            current.health = current.max_health 
-            current.mana = current.max_mana 
-            print(f"You have defeated the {current_enemy.name}!\n")
-            enemy = random.choice([Enemy("Goblin", 50, 20, current.level), Enemy("Orc", 70, 30, current.level), Enemy("Troll", 90, 40, current.level)])
-            current_enemy = enemy
+        clear()
+        
+        print(desc)
+        
+        if damage > 0:
+            print(enemy.take_damage(damage))
+
+        if enemy.health <= 0:
+            print(f"{enemy.name} defeated!")
+            #Level up player
+            player.level += 1
+            print(f"Level Up! New Level: {player.level}")
+
+
+
+            #Restore player
+            player.health = player.max_health
+            player.mana = player.max_mana
+            player.health *= 1.5
+            player.mana *= 1.5
+
+            # Respawn a stronger enemy
+            new_name, base_health = random.choice(enemy_data)
+            scaled_health = int(base_health * 1.5) + (player.level * 5)
+            enemy = Enemy(new_name, health=scaled_health, level=player.level)
+            print(f"\nA new {enemy.name} appears with {enemy.health} HP and Level {enemy.level}!")
+
+
+
+            time.sleep(5)
+            clear()
+
+            continue
+
+        # Enemy turn
+        desc, damage = enemy.attack(player)
+        print(desc)
+        player.health -= damage
+        print(f"You take {damage} damage. Your remaining health: {player.health}")
+
+        if player.health <= 0:
+            print("You have been defeated. Game Over!")
+            break
             
 
-        time.sleep(3)
+        time.sleep(5)
         clear()
