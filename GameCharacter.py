@@ -34,5 +34,10 @@ class Archer(GameCharacter):
         super().__init__(health = 100, mana = 60, level = level)
 
 class Assassin(GameCharacter):
-    def __init__(self, level=1):
+ def __init__(self, level=1):
         super().__init__(health = 90, mana = 70, level = level)
+
+
+
+
+        
