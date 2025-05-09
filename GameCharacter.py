@@ -7,12 +7,25 @@ class GameCharacter(ABC):
         self.level = 1
 
     @abstractmethod
-    def skill(self):
+    def attack(self):
         pass
 
     @abstractmethod
-    def attack(self):
+    def defend(self):
         pass
+
+    @abstractmethod
+    def cast_spell(self):
+        pass
+
+class Warrior(GameCharacter):
+    pass
+class Mage(GameCharacter):
+    pass
+class Archer(GameCharacter):
+    pass
+class Assassin(GameCharacter):
+    pass
 
 
 
