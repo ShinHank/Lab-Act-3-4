@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
 
 class GameCharacter(ABC):
-    def __init__(self, health, mana, level):
-        self.health = 100
-        self.mana = 50
-        self.level = 1
+    def __init__(self, health, mana, level = 1):
+        self.health = health
+        self.mana = mana
+        self.level = level
 
     @abstractmethod
     def attack(self):
@@ -17,18 +17,22 @@ class GameCharacter(ABC):
     @abstractmethod
     def cast_spell(self):
         pass
+    
+class Enemy():
+    pass
 
 class Warrior(GameCharacter):
-    pass
+    def __init__(self, level = 1):
+        super().__init__(health = 150, mana = 30, level = level)
+
 class Mage(GameCharacter):
-    pass
+    def __init__(self, level=1):
+        super().__init__(health = 80, mana = 120, level = level)
+
 class Archer(GameCharacter):
-    pass
+    def __init__(self, level=1):
+        super().__init__(health = 100, mana = 60, level = level)
+
 class Assassin(GameCharacter):
-    pass
-
-
-
-
-
-        
+    def __init__(self, level=1):
+        super().__init__(health = 90, mana = 70, level = level)
