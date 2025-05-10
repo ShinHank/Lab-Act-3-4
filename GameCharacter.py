@@ -4,14 +4,14 @@ import random
 from abc import ABC, abstractmethod
 
 class GameCharacter(ABC):
-    def __init__(self, health, mana, level = 1):
+    def __init__(self, className, health, mana, level = 1):
+        self.className = className
         self.max_health = health
         self.max_mana = mana 
         self.health = health 
         self.mana = mana
         self.level = level
         self.is_defending = False
-
 
     @abstractmethod
     def attack(self):
@@ -27,34 +27,56 @@ class GameCharacter(ABC):
 
 class Warrior(GameCharacter):
     def __init__(self, level = 1):
-        super().__init__(health = 150, mana = 30, level = level)
+        super().__init__(className = "Warrior", health = 150, mana = 30, level = level)
 
 class Mage(GameCharacter):
     def __init__(self, level=1):
-        super().__init__(health = 80, mana = 120, level = level)
+        super().__init__(className = "Mage", health = 80, mana = 120, level = level)
 
 class Archer(GameCharacter):
     def __init__(self, level=1):
-        super().__init__(health = 100, mana = 60, level = level)
+        super().__init__(className = "Archer", health = 100, mana = 60, level = level)
 
     def attack(self):
+        if self.max_mana != self.mana:
+            self.mana += 5
         return f"Archer (Lvl {self.level}) fires a volley of arrows!", 15 * self.level
 
     def defend(self):
         self.is_defending = True
-        return f"You are ready to block the enemy's attack."
+        if self.max_mana != self.mana:
+            self.mana += 5
+        return f"Archer dashes out to evade the attack"
 
     def cast_spell(self):
-        if self.mana >= 10:
-            self.mana -= 10
+        if self.mana >= 15:
+            self.mana -= 15
             return f"Archer fires a Charge Arrow!", 30 * self.level
         else:
             return f"Not enough mana.", 0
 
 class Assassin(GameCharacter):
     def __init__(self, level=1):
-        super().__init__(health = 90, mana = 70, level = level)
+        super().__init__(className = "Assassin", health = 90, mana = 60, level = level)
 
+    def attack(self):
+        if self.max_mana != self.mana:
+            self.mana += 10
+        return f"Assassin (Lvl {self.level}) slashed with a dagger", 20 * self.level
+
+    def defend(self):
+        self.is_defending = True
+        if self.max_mana != self.mana:
+            self.mana += 10
+        return f"Assassin used Invisibility to dodge the enemy attack"
+    
+    def cast_spell(self):
+        if self.mana >= 30:
+            self.mana -= 30
+            return f"Assassin enchants weapon with poison!", 35 * self.level
+        else:
+            return f"Not enough mana", 0
+    
 class Enemy:
     def __init__(self, name, health, level = 1):
         self.name = name
@@ -66,13 +88,13 @@ class Enemy:
     def attack(self, player):
         if player.is_defending:
             player.is_defending = False
-            return f"{self.name} attacks, but you PARRIED the attack!", 0
+            return f"{self.name} attacks, but it miss!", 0
         else:
             return f"{self.name} attacks viciously!", self._attack
         
     def take_damage(self, amount):
         self.health -= amount
-        return f"{self.name} takes {amount} damage! Remaining health: {self.health}"
+        return f"{self.name} takes {amount} damage! Remaining health: {max(self.health, 0)}"
 
 enemy_data = [
     ("Goblin", 50),
@@ -134,7 +156,7 @@ if __name__ == "__main__":
     while True:
         print("\n--- BATTLE START ---")
         print(f"Enemy: {enemy.name} | HP: {enemy.health} | Lvl: {enemy.level}")
-        print(f"Player: | HP: {player.health} | Mana: {player.mana} | Lvl: {player.level}")
+        print(f"Player: {player.className} | HP: {player.health} | Mana: {player.mana} | Lvl: {player.level}")
 
         # Player turn
         print("[1] Attack")
@@ -153,7 +175,8 @@ if __name__ == "__main__":
             continue
 
         clear()
-        
+
+        print("\n--- BATTLE LOG ---")
         print(desc)
         
         if damage > 0:
@@ -161,17 +184,18 @@ if __name__ == "__main__":
 
         if enemy.health <= 0:
             print(f"{enemy.name} defeated!")
+
             #Level up player
             player.level += 1
             print(f"Level Up! New Level: {player.level}")
 
-
-
             #Restore player
             player.health = player.max_health
             player.mana = player.max_mana
-            player.health *= 1.5
-            player.mana *= 1.5
+
+            #Scale player
+            player.health += (player.level - 1) * 50
+            player.mana += (player.level - 1) * 25
 
             # Respawn a stronger enemy
             new_name, base_health = random.choice(enemy_data)
@@ -179,23 +203,19 @@ if __name__ == "__main__":
             enemy = Enemy(new_name, health=scaled_health, level=player.level)
             print(f"\nA new {enemy.name} appears with {enemy.health} HP and Level {enemy.level}!")
 
-
-
             time.sleep(5)
             clear()
-
             continue
 
         # Enemy turn
         desc, damage = enemy.attack(player)
         print(desc)
         player.health -= damage
-        print(f"You take {damage} damage. Your remaining health: {player.health}")
+        print(f"You take {damage} damage. Your remaining health: {max(player.health, 0)}")
 
         if player.health <= 0:
             print("You have been defeated. Game Over!")
             break
             
-
         time.sleep(5)
         clear()
