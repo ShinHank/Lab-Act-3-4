@@ -33,10 +33,24 @@ class Mage(GameCharacter):
     def __init__(self, level=1):
         super().__init__(className = "Mage", health = 80, mana = 120, level = level)
 
+    def attack(self):
+        return f"Mage (Lvl {self.level}) hurls a Shadow Bomb!", 10 * self.level 
+    
+    def defend(self):
+        self.is_defending = True   
+        return f"You have cast a Dark Veil Shield."
+    
+    def cast_spell(self):
+        if self.mana >= 30:
+            self.mana -= 30
+            return f"Mage unleashes a Gloom Burst", 40 * self.level 
+        else: 
+            return f"Not enough mana.", 0
+        
 class Archer(GameCharacter):
     def __init__(self, level=1):
         super().__init__(className = "Archer", health = 100, mana = 60, level = level)
-
+    
     def attack(self):
         if self.max_mana != self.mana:
             self.mana += 5
@@ -71,8 +85,8 @@ class Assassin(GameCharacter):
         return f"Assassin used Invisibility to dodge the enemy attack"
     
     def cast_spell(self):
-        if self.mana >= 30:
-            self.mana -= 30
+        if self.mana >= 20:
+            self.mana -= 20
             return f"Assassin enchants weapon with poison!", 35 * self.level
         else:
             return f"Not enough mana", 0
