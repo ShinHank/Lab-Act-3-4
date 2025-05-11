@@ -24,16 +24,25 @@ class GameCharacter(ABC):
     @abstractmethod
     def cast_spell(self):
         pass
+    
+    def critHit(self):
+        pass
 
 class Warrior(GameCharacter):
     def __init__(self, level = 1):
-        super().__init__(className = "Warrior", health = 150, mana = 30, level = level)
+        super().__init__(className = "Warrior", health = 180, mana = 40, level = level)
+
+    def critHit(self):
+        return 1.5 if random.randint(1, 10) == 1 else 1.0
 
     def attack(self):
+        baseDamage = 10 + (5 * self.level)
+        damage = baseDamage * self.critHit()
+
         if self.max_mana != self.mana:
             self.mana += 5
-        return f"Warrior (Lvl {self.level}) slashes with a sword!", 10 + (10 * self.level)
-
+        return f"Warrior (Lvl {self.level}) slashes with a sword!",  damage
+    
     def defend(self):
         self.is_defending = True
         if self.max_mana != self.mana:
@@ -41,20 +50,29 @@ class Warrior(GameCharacter):
         return f"Warrior raises shield to block the next attack."
 
     def cast_spell(self):
+        baseDamage = 25 + (10 * self.level)
+        damage = baseDamage * self.critHit()
+
         if self.mana >= 10:
             self.mana -= 10
-            return f"Warrior uses War Cry to boost strength!", 25 + (20 * self.level)
+            return f"Warrior uses War Cry to boost strength!", damage
         else:
             return f"Not enough mana.", 0
 
 class Mage(GameCharacter):
     def __init__(self, level=1):
-        super().__init__(className = "Mage", health = 80, mana = 120, level = level)
+        super().__init__(className = "Mage", health = 90, mana = 150, level = level)
+
+    def critHit(self):
+        return 1.6 if random.randint(1, 100) <= 15 else 1.0
 
     def attack(self):
+        baseDamage = 10 + (5 * self.level)
+        damage = baseDamage * self.critHit()
+
         if self.max_mana != self.mana:
             self.mana += 15
-        return f"Mage (Lvl {self.level}) hurls a Shadow Bomb!", 7.5 + (7.5 * self.level)
+        return f"Mage (Lvl {self.level}) hurls a Shadow Bomb!", damage
     
     def defend(self):
         if self.mana >= 20:
@@ -65,20 +83,29 @@ class Mage(GameCharacter):
             return f"You don't have enough mana to cast Dark Veil Shield"
     
     def cast_spell(self):
+        baseDamage = 30 + (15 * self.level)
+        damage = baseDamage * self.critHit()
+
         if self.mana >= 30:
             self.mana -= 30
-            return f"Mage unleashes a Gloom Burst", 15 + (25 * self.level) 
+            return f"Mage unleashes a Gloom Burst",  damage
         else: 
             return f"Not enough mana.", 0
         
 class Archer(GameCharacter):
     def __init__(self, level=1):
-        super().__init__(className = "Archer", health = 100, mana = 60, level = level)
+        super().__init__(className = "Archer", health = 120, mana = 70, level = level)
+
+    def critHit(self):
+        return 2.0 if random.randint(1, 100) <= 25 else 1.0
 
     def attack(self):
+        baseDamage = 12 + (4 * self.level)
+        damage = baseDamage * self.critHit()
+        
         if self.max_mana != self.mana:
             self.mana += 5
-        return f"Archer (Lvl {self.level}) fires a volley of arrows!", 7.5 + (7.5 * self.level)
+        return f"Archer (Lvl {self.level}) fires a volley of arrows!", damage
 
     def defend(self):
         self.is_defending = True
@@ -87,31 +114,45 @@ class Archer(GameCharacter):
         return f"Archer dashes out to evade the attack"
 
     def cast_spell(self):
+        baseDamage = 20 + (10 * self.level)
+        damage = baseDamage * self.critHit()
+
         if self.mana >= 15:
             self.mana -= 15
-            return f"Archer fires a Charge Arrow!", 15 + (15 * self.level)
+            return f"Archer fires a Charge Arrow!", damage
         else:
             return f"Not enough mana.", 0
 
 class Assassin(GameCharacter):
     def __init__(self, level=1):
-        super().__init__(className = "Assassin", health = 90, mana = 60, level = level)
+        super().__init__(className = "Assassin", health = 110, mana = 80, level = level)
+
+    def critHit(self):
+        return 2.25 if random.randint(1,100) <= 35 else 1.0
 
     def attack(self):
+        baseDamage = 15 + (5 * self.level)
+        damage = baseDamage * self.critHit()
+
         if self.max_mana != self.mana:
             self.mana += 10
-        return f"Assassin (Lvl {self.level}) slashed with a dagger", 10 + (10 * self.level)
+        return f"Assassin (Lvl {self.level}) slashed with a dagger", damage
 
     def defend(self):
-        self.is_defending = True
-        if self.max_mana != self.mana:
-            self.mana += 10
-        return f"Assassin uses Invisibility to dodge the enemy attack"
+        if self.mana >= 10:
+            self.mana -= 10
+            self.is_defending = True
+            return f"Assassin uses Invisibility to dodge the enemy attack"
+        else:
+            return f"Not enoough mana"
     
     def cast_spell(self):
+        baseDamage = 25 + (12 * self.level)
+        damage = baseDamage * self.critHit()
+
         if self.mana >= 20:
             self.mana -= 20
-            return f"Assassin enchants weapon with poison!", 17.5 + (17.5 * self.level)
+            return f"Assassin enchants weapon with poison!", damage
         else:
             return f"Not enough mana", 0
     
@@ -120,15 +161,23 @@ class Enemy:
         self.name = name
         self.max_health = health 
         self.health = health
-        self._attack = int(health * 0.25)
         self.level = level
 
     def attack(self, player):
+        baseDamage = int(self.max_health * 0.25)
+        maxDamage = baseDamage + (7 * self.level)
+        damageRange = random.randint(baseDamage, maxDamage)
+
         if player.is_defending:
-            player.is_defending = False
-            return f"{self.name} attacks, but it miss!", 0
+            defenseAccuracy = random.randint(1,10)
+            if defenseAccuracy <= 8:
+                player.is_defending = False
+                return f"{self.name} attacks, but it miss!", 0
+            else:
+                player.is_defending = False
+                return f"{self.name} still manage to land an attack." , damageRange
         else:
-            return f"{self.name} attacks viciously!", self._attack
+            return f"{self.name} attacks viciously!", damageRange
         
     def take_damage(self, amount):
         self.health -= amount
@@ -232,12 +281,14 @@ if __name__ == "__main__":
             player.mana = player.max_mana
 
             #Scale player
-            player.health += (player.level - 1) * 50
-            player.mana += (player.level - 1) * 25
+            player.max_health += 50
+            player.health = player.max_health
+            player.max_mana += 25
+            player.mana = player.max_mana
 
             # Respawn a stronger enemy
             new_name, base_health = random.choice(enemy_data)
-            scaled_health = int(base_health * 1.5) + (player.level * 10)
+            scaled_health = int(base_health * 1.5) + (player.level * 15)
             enemy = Enemy(new_name, health=scaled_health, level=player.level)
             print(f"\nA new {enemy.name} appears with {enemy.health} HP and Level {enemy.level}!")
 
