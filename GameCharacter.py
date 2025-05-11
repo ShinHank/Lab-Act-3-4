@@ -274,9 +274,6 @@ def game():
         player = Assassin()
     elif classChoice == "5":
         main()
-    else:
-        print("Invalid Choice")
-        exit()
 
     enemy_name, enemy_health = random.choice(enemy_data)
     enemy = Enemy(enemy_name, health=enemy_health)
@@ -375,7 +372,7 @@ def main():
     elif startChoice == "2":
         clear()
         classInfo()
-        classInfoExit = input("\n Press [0] to go back to main menu: ")
+        classInfoExit = get_valid_input("\nPress [0] to go back to main menu: ", ["0"])
         if classInfoExit == "0":
             clear()
             main()
