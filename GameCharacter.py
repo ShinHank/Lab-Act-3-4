@@ -44,21 +44,21 @@ class Warrior(GameCharacter):
         damage = baseDamage * self.critHit()
 
         if self.max_mana != self.mana:
-            self.mana += 5
+            self.mana += 10
         return f"Warrior (Lvl {self.level}) slashes with a sword!",  damage
     
     def defend(self):
         self.is_defending = True
         if self.max_mana != self.mana:
-            self.mana += 5
+            self.mana += 10
         return f"Warrior raises shield to block the next attack."
 
     def cast_spell(self):
         baseDamage = 25 + (10 * self.level)
         damage = baseDamage * self.critHit()
 
-        if self.mana >= 10:
-            self.mana -= 10
+        if self.mana >= 20:
+            self.mana -= 20
             return f"Warrior uses War Cry to boost strength!", damage
         else:
             return f"Not enough mana.", 0
@@ -83,9 +83,9 @@ class Mage(GameCharacter):
         return f"Mage (Lvl {self.level}) hurls a Shadow Bomb!", damage
     
     def defend(self):
-        if self.mana >= 20:
+        if self.mana >= 15:
             self.is_defending = True
-            self.mana -= 20   
+            self.mana -= 15   
             return f"You have cast a Dark Veil Shield."
         else:
             return f"You don't have enough mana to cast Dark Veil Shield"
@@ -116,22 +116,22 @@ class Archer(GameCharacter):
         damage = baseDamage * self.critHit()
         
         if self.max_mana != self.mana:
-            self.mana += 5
+            self.mana += 10
         return f"Archer (Lvl {self.level}) fires a volley of arrows!", damage
 
     def defend(self):
         self.is_defending = True
         if self.max_mana != self.mana:
-            self.mana += 5
+            self.mana += 10
         return f"Archer dashes out to evade the attack"
 
     def cast_spell(self):
         baseDamage = 20 + (10 * self.level)
         damage = baseDamage * self.critHit()
 
-        if self.mana >= 15:
-            self.mana -= 15
-            return f"Archer fires a Charge Arrow!", damage
+        if self.mana >= 20:
+            self.mana -= 20
+            return f"Archer fires a Magic Arrow!", damage
         else:
             return f"Not enough mana.", 0
 
@@ -158,16 +158,16 @@ class Assassin(GameCharacter):
         if self.mana >= 10:
             self.mana -= 10
             self.is_defending = True
-            return f"Assassin uses Invisibility to dodge the enemy attack"
+            return f"Assassin uses Invisibility to hide."
         else:
-            return f"Not enoough mana"
+            return f"Not enough mana"
     
     def cast_spell(self):
         baseDamage = 25 + (12 * self.level)
         damage = baseDamage * self.critHit()
 
-        if self.mana >= 20:
-            self.mana -= 20
+        if self.mana >= 30:
+            self.mana -= 30
             return f"Assassin enchants weapon with poison!", damage
         else:
             return f"Not enough mana", 0
@@ -196,7 +196,7 @@ class Enemy:
                 return f"{self.name} attacks, but it miss!", 0
             else:
                 player.is_defending = False
-                return f"{self.name} still manage to land an attack." , damageRange
+                return f"{self.name} still manages to land an attack." , damageRange
         else:
             return f"{self.name} attacks viciously!", damageRange
         
@@ -234,22 +234,36 @@ enemy_data = [
 
 clear = lambda: os.system('cls' if os.name == 'nt' else 'clear')
 
-def scale_stat(base_value, level, growth_rate):
-    return int(base_value * ((1 + growth_rate) ** (level - 1)))
+def startMenu():
+    print("\n--- Legendary Battle Simulator ---")
+    print("[1] Start")
+    print("[2] Class Info")
+    print("[3] Quit Game")
 
-if __name__ == "__main__":
-    clear()
+def classInfo():
+    print("\nWarrior")
+    print("Base Stats: \nHealth: 180  Mana: 40  Attack: 15\nCrit Rate: 10%  Crit Damage: x1.5\nSkill: War Cry (35 Damage, -30 Mana)")
+    print("\nMage")
+    print("Base Stats: \nHealth: 80  Mana: 120  Attack: 15\nCrit Rate: 15%  Crit Damage: x1.6\nSkill: Gloom Burst (45 Damage, -30 Mana)  Dark Veil Shield (-15 Mana)")
+    print("\nArcher")
+    print("Base Stats: \nHealth: 100  Mana: 60  Attack: 16\nCrit Rate: 25%  Crit Damage: x2.0\nSkill: Magic Arrow (30 Damage, -15 Mana)")
+    print("\nAssassin")
+    print("Base Stats: \nHealth: 90  Mana: 60  Attack: 20\nCrit Rate: 35%  Crit Damage: x2.25\nSkill: Poison Dagger (37 Damage, -20 Mana)  Invisibility (-10 Mana)")
+
+def displayClassChoices():
     print("\nClasses")
     print("[1] Warrior")
     print("[2] Mage")
     print("[3] Archer")
     print("[4] Assassin")
+    print("[5] Main Menu")
 
+def game():
+    displayClassChoices()
     classChoice = input("Select a Class: ")
 
     time.sleep(1)
     clear()
-
     if classChoice == "1":
         player = Warrior()
     elif classChoice == "2":
@@ -258,6 +272,8 @@ if __name__ == "__main__":
         player = Archer()
     elif classChoice == "4":
         player = Assassin()
+    elif classChoice == "5":
+        main()
     else:
         print("Invalid Choice")
         exit()
@@ -285,10 +301,10 @@ if __name__ == "__main__":
             desc, damage = player.cast_spell()
         elif action == "4":
             clear()
-            print("[1] Confirm Quit")
-            print("[2] Continue")
+            print("[1] Continue")
+            print("[2] Confirm Quit")
             quitAction = input("Choose action: ")
-            if action == "1":
+            if quitAction == "2":
                 clear()
                 break
             else:
@@ -349,3 +365,33 @@ if __name__ == "__main__":
             
         time.sleep(3)
         clear()
+
+def main():
+    startMenu()
+    startChoice = input("Choose an option: ")
+    if startChoice == "1":
+        clear()
+        game()
+    elif startChoice == "2":
+        clear()
+        classInfo()
+        classInfoExit = input("\n Press [0] to go back to main menu: ")
+        if classInfoExit == "0":
+            clear()
+            main()
+    else:
+        clear()
+        print("\n[1] Continue")
+        print("[2] Quit Game")
+        exitChoice = input("Choose an option: ")
+        if exitChoice == "1":
+            clear()
+            main()
+        else:
+            exit()
+        
+if __name__ == "__main__":
+    clear()
+    main()
+
+    
