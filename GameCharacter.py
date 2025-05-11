@@ -30,7 +30,11 @@ class GameCharacter(ABC):
 
 class Warrior(GameCharacter):
     def __init__(self, level = 1):
-        super().__init__(className = "Warrior", health = 180, mana = 40, level = level)
+        self.base_health = 180
+        self.base_mana = 40
+        self.health_growth = 40
+        self.mana_growth = 10
+        super().__init__("Warrior", self.base_health, self.base_mana, level)
 
     def critHit(self):
         return 1.5 if random.randint(1, 10) == 1 else 1.0
@@ -61,7 +65,11 @@ class Warrior(GameCharacter):
 
 class Mage(GameCharacter):
     def __init__(self, level=1):
-        super().__init__(className = "Mage", health = 90, mana = 150, level = level)
+        self.base_health = 80
+        self.base_mana = 120
+        self.health_growth = 15
+        self.mana_growth = 30
+        super().__init__("Mage", self.base_health, self.base_mana, level)
 
     def critHit(self):
         return 1.6 if random.randint(1, 100) <= 15 else 1.0
@@ -94,7 +102,11 @@ class Mage(GameCharacter):
         
 class Archer(GameCharacter):
     def __init__(self, level=1):
-        super().__init__(className = "Archer", health = 120, mana = 70, level = level)
+        self.base_health = 100
+        self.base_mana = 60
+        self.health_growth = 25
+        self.mana_growth = 20
+        super().__init__("Archer", self.base_health, self.base_mana, level)
 
     def critHit(self):
         return 2.0 if random.randint(1, 100) <= 25 else 1.0
@@ -125,7 +137,11 @@ class Archer(GameCharacter):
 
 class Assassin(GameCharacter):
     def __init__(self, level=1):
-        super().__init__(className = "Assassin", health = 110, mana = 80, level = level)
+        self.base_health = 90
+        self.base_mana = 60
+        self.health_growth = 20
+        self.mana_growth = 25
+        super().__init__("Assassin", self.base_health, self.base_mana, level)
 
     def critHit(self):
         return 2.25 if random.randint(1,100) <= 35 else 1.0
@@ -159,13 +175,18 @@ class Assassin(GameCharacter):
 class Enemy:
     def __init__(self, name, health, level = 1):
         self.name = name
-        self.max_health = health 
-        self.health = health
         self.level = level
+        self.health = health
+        self.max_health = health
+
+        # Health scaling
+        scaling_factor = 1 + (0.2 * (self.level - 1))  # 20% more health per level
+        self.max_health = int(self.max_health * scaling_factor)
+        self.health = self.max_health
 
     def attack(self, player):
-        baseDamage = int(self.max_health * 0.25)
-        maxDamage = baseDamage + (7 * self.level)
+        baseDamage = int(self.max_health * 0.2) 
+        maxDamage = baseDamage + (5 * self.level) 
         damageRange = random.randint(baseDamage, maxDamage)
 
         if player.is_defending:
@@ -213,8 +234,12 @@ enemy_data = [
 
 clear = lambda: os.system('cls' if os.name == 'nt' else 'clear')
 
-if __name__ == "__main__":
+def scale_stat(base_value, level, growth_rate):
+    return int(base_value * ((1 + growth_rate) ** (level - 1)))
 
+if __name__ == "__main__":
+    clear()
+    print("\nClasses")
     print("[1] Warrior")
     print("[2] Mage")
     print("[3] Archer")
@@ -222,7 +247,7 @@ if __name__ == "__main__":
 
     classChoice = input("Select a Class: ")
 
-    time.sleep(2)
+    time.sleep(1)
     clear()
 
     if classChoice == "1":
@@ -249,6 +274,7 @@ if __name__ == "__main__":
         print("[1] Attack")
         print("[2] Defend")
         print("[3] Cast Spell")
+        print("[4] Quit")
         action = input("Choose action: ")
         if action == "1":
             desc, damage = player.attack()
@@ -257,6 +283,17 @@ if __name__ == "__main__":
             damage = 0
         elif action == "3":
             desc, damage = player.cast_spell()
+        elif action == "4":
+            clear()
+            print("[1] Confirm Quit")
+            print("[2] Continue")
+            quitAction = input("Choose action: ")
+            if action == "1":
+                clear()
+                break
+            else:
+                clear()
+                continue
         else:
             print("Invalid action, turn skipped.")
             continue
@@ -281,14 +318,15 @@ if __name__ == "__main__":
             player.mana = player.max_mana
 
             #Scale player
-            player.max_health += 50
+            player.max_health = player.base_health + (player.level - 1) * player.health_growth
             player.health = player.max_health
-            player.max_mana += 25
+
+            player.max_mana = player.base_mana + (player.level - 1) * player.mana_growth
             player.mana = player.max_mana
 
-            # Respawn a stronger enemy
+            # Respawn a random stronger enemy
             new_name, base_health = random.choice(enemy_data)
-            scaled_health = int(base_health * 1.5) + (player.level * 15)
+            scaled_health = int(base_health + int(player.level * 1.2 * base_health / 10))
             enemy = Enemy(new_name, health=scaled_health, level=player.level)
             print(f"\nA new {enemy.name} appears with {enemy.health} HP and Level {enemy.level}!")
 
@@ -299,8 +337,11 @@ if __name__ == "__main__":
         # Enemy turn
         desc, damage = enemy.attack(player)
         print(desc)
-        player.health -= damage
-        print(f"You take {damage} damage. Your remaining health: {max(player.health, 0)}")
+        if random.randint(1,100) <= 10:
+            print(f"But {enemy.name} didn't manage to land the attack")
+        else:
+            player.health -= damage
+            print(f"You take {damage} damage. Your remaining health: {max(player.health, 0)}")
 
         if player.health <= 0:
             print("You have been defeated. Game Over!")
