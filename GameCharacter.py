@@ -30,16 +30,20 @@ class Warrior(GameCharacter):
         super().__init__(className = "Warrior", health = 150, mana = 30, level = level)
 
     def attack(self):
-        return f"Warrior (Lvl {self.level}) slashes with a sword!", 20 * self.level
+        if self.max_mana != self.mana:
+            self.mana += 5
+        return f"Warrior (Lvl {self.level}) slashes with a sword!", 10 + (10 * self.level)
 
     def defend(self):
         self.is_defending = True
+        if self.max_mana != self.mana:
+            self.mana += 5
         return f"Warrior raises shield to block the next attack."
 
     def cast_spell(self):
-        if self.mana >= 5:
-            self.mana -= 5
-            return f"Warrior uses War Cry to boost strength!", 25 * self.level
+        if self.mana >= 10:
+            self.mana -= 10
+            return f"Warrior uses War Cry to boost strength!", 25 + (20 * self.level)
         else:
             return f"Not enough mana.", 0
 
@@ -48,16 +52,22 @@ class Mage(GameCharacter):
         super().__init__(className = "Mage", health = 80, mana = 120, level = level)
 
     def attack(self):
-        return f"Mage (Lvl {self.level}) hurls a Shadow Bomb!", 10 * self.level 
+        if self.max_mana != self.mana:
+            self.mana += 15
+        return f"Mage (Lvl {self.level}) hurls a Shadow Bomb!", 7.5 + (7.5 * self.level)
     
     def defend(self):
-        self.is_defending = True   
-        return f"You have cast a Dark Veil Shield."
+        if self.mana >= 20:
+            self.is_defending = True
+            self.mana -= 20   
+            return f"You have cast a Dark Veil Shield."
+        else:
+            return f"You don't have enough mana to cast Dark Veil Shield"
     
     def cast_spell(self):
         if self.mana >= 30:
             self.mana -= 30
-            return f"Mage unleashes a Gloom Burst", 40 * self.level 
+            return f"Mage unleashes a Gloom Burst", 15 + (25 * self.level) 
         else: 
             return f"Not enough mana.", 0
         
@@ -68,7 +78,7 @@ class Archer(GameCharacter):
     def attack(self):
         if self.max_mana != self.mana:
             self.mana += 5
-        return f"Archer (Lvl {self.level}) fires a volley of arrows!", 15 * self.level
+        return f"Archer (Lvl {self.level}) fires a volley of arrows!", 7.5 + (7.5 * self.level)
 
     def defend(self):
         self.is_defending = True
@@ -79,7 +89,7 @@ class Archer(GameCharacter):
     def cast_spell(self):
         if self.mana >= 15:
             self.mana -= 15
-            return f"Archer fires a Charge Arrow!", 30 * self.level
+            return f"Archer fires a Charge Arrow!", 15 + (15 * self.level)
         else:
             return f"Not enough mana.", 0
 
@@ -90,18 +100,18 @@ class Assassin(GameCharacter):
     def attack(self):
         if self.max_mana != self.mana:
             self.mana += 10
-        return f"Assassin (Lvl {self.level}) slashed with a dagger", 20 * self.level
+        return f"Assassin (Lvl {self.level}) slashed with a dagger", 10 + (10 * self.level)
 
     def defend(self):
         self.is_defending = True
         if self.max_mana != self.mana:
             self.mana += 10
-        return f"Assassin used Invisibility to dodge the enemy attack"
+        return f"Assassin uses Invisibility to dodge the enemy attack"
     
     def cast_spell(self):
         if self.mana >= 20:
             self.mana -= 20
-            return f"Assassin enchants weapon with poison!", 35 * self.level
+            return f"Assassin enchants weapon with poison!", 17.5 + (17.5 * self.level)
         else:
             return f"Not enough mana", 0
     
@@ -110,7 +120,7 @@ class Enemy:
         self.name = name
         self.max_health = health 
         self.health = health
-        self._attack = int(health * 0.15)
+        self._attack = int(health * 0.25)
         self.level = level
 
     def attack(self, player):
@@ -227,7 +237,7 @@ if __name__ == "__main__":
 
             # Respawn a stronger enemy
             new_name, base_health = random.choice(enemy_data)
-            scaled_health = int(base_health * 1.5) + (player.level * 5)
+            scaled_health = int(base_health * 1.5) + (player.level * 10)
             enemy = Enemy(new_name, health=scaled_health, level=player.level)
             print(f"\nA new {enemy.name} appears with {enemy.health} HP and Level {enemy.level}!")
 
@@ -245,5 +255,5 @@ if __name__ == "__main__":
             print("You have been defeated. Game Over!")
             break
             
-        time.sleep(5)
+        time.sleep(3)
         clear()
