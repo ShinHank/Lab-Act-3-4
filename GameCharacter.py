@@ -28,8 +28,8 @@ class GameCharacter(ABC):
 class Warrior(GameCharacter):
     def __init__(self, level = 1):
         super().__init__(className = "Warrior", health = 150, mana = 30, level = level)
-         def attack(self):
-        return f"Warrior (Lvl {self.level}) slashes with a sword!", 20 * self.level
+        def attack(self):
+            return f"Warrior (Lvl {self.level}) slashes with a sword!", 20 * self.level
 
     def defend(self):
         self.is_defending = True
