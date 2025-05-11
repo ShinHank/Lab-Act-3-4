@@ -50,7 +50,7 @@ class Mage(GameCharacter):
 class Archer(GameCharacter):
     def __init__(self, level=1):
         super().__init__(className = "Archer", health = 100, mana = 60, level = level)
-    
+
     def attack(self):
         if self.max_mana != self.mana:
             self.mana += 5
