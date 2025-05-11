@@ -4,7 +4,7 @@
 
 ---
 
-## 👥 Team Members:
+## 👥 Group Members:
 
 * *Alvendia, Marjol F.*
 * *Catapang, Justine M.*
@@ -34,7 +34,6 @@ This program uses an abstract base class (`GameCharacter`) and subclasses (`Warr
 * *Inheritance*: Sharing combat behavior and stats between character types.
 * *Abstraction*: Defining a blueprint for characters using abstract methods.
 * *Polymorphism*: Allowing each character class to implement its own unique actions and effects.
-* *Encapsulation*: Managing internal state such as health and mana within the class.
 
 ---
 
