@@ -260,7 +260,7 @@ def displayClassChoices():
 
 def game():
     displayClassChoices()
-    classChoice = input("Select a Class: ")
+    classChoice = get_valid_input("Select a Class: ", ["1", "2", "3", "4", "5"])
 
     time.sleep(1)
     clear()
@@ -291,7 +291,7 @@ def game():
         print("[2] Defend")
         print("[3] Cast Spell")
         print("[4] Quit")
-        action = input("Choose action: ")
+        action = get_valid_input("Choose action: ", ["1", "2", "3", "4"])
         if action == "1":
             desc, damage = player.attack()
         elif action == "2":
@@ -303,7 +303,7 @@ def game():
             clear()
             print("[1] Continue")
             print("[2] Confirm Quit")
-            quitAction = input("Choose action: ")
+            quitAction = get_valid_input("Choose action: ", ["1", "2"])
             if quitAction == "2":
                 clear()
                 break
@@ -368,7 +368,7 @@ def game():
 
 def main():
     startMenu()
-    startChoice = input("Choose an option: ")
+    startChoice = get_valid_input("Choose an option: ", ["1", "2", "3"])
     if startChoice == "1":
         clear()
         game()
@@ -379,16 +379,27 @@ def main():
         if classInfoExit == "0":
             clear()
             main()
-    else:
+    elif startChoice == "3":
         clear()
         print("\n[1] Continue")
         print("[2] Quit Game")
-        exitChoice = input("Choose an option: ")
+        exitChoice = get_valid_input("Choose an option: ", ["1", "2"])
         if exitChoice == "1":
             clear()
             main()
         else:
             exit()
+    else:
+        print("Invalid Choice")
+        
+def get_valid_input(prompt, valid_options):
+    while True:
+        user_input = input(prompt).strip()
+        if user_input in valid_options:
+            return user_input
+        else:
+            print(f"Invalid input. Choose from: {', '.join(valid_options)}")
+
         
 if __name__ == "__main__":
     clear()
